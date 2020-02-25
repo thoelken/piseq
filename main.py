@@ -203,9 +203,9 @@ class Motor():
 
 ###### thread für Motorcontrol
 
-class Motorcontrol (th.Thread):
+class Motorcontrol (Thread):
     def __init__(self, param, num):
-        th.Thread.__init__(self)
+        Thread.__init__(self)
         self.p = param
         self.p.setup()
         self.num = num
