@@ -32,7 +32,7 @@ class Motor():
         GPIO.output(self.pin_step, False)
         GPIO.setup(self.pin_off, GPIO.OUT)
         GPIO.output(self.pin_off, False)
-        GPIO.setup(self.pin_sens, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(self.pin_sens, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     # create all the UI elements for one motor control
     def create_ui(self):
@@ -84,7 +84,7 @@ class Motor():
         self.update('stopped')
 
     def blocked(self):  # check lightbarrier
-        return GPIO.input(self.pin_sens) == 1
+        return GPIO.input(self.pin_sens) == 0
 
     # actual pumping function run in thread
     def run(self):
@@ -139,16 +139,12 @@ class Motor():
             if self.state != 'loading':
                 break
             self.status['text'] = 'loading step %d' % i
-            self.move(False)
+            self.move(forward=False, wait=0.01)
         self.unfreeze()
 
     # start loading thread
     def load(self):
-        if self.blocked():
-            self.update('already @ max')
-            return
         self.update('reset')
-
         self.freeze()
         t = Thread(target=self.reset)
         t.start()
@@ -218,7 +214,7 @@ if __name__ == '__main__':
     # set UI parent element for all motors
     Motor.ui = motor_frame
 
-    motors = [Motor(3, 5, 7, 40),
+    motors = [Motor(pin_dir=3, pin_step=5, pin_off=7, pin_sens=40),
               Motor(13, 15, 11, 21),
               Motor(21, 23, 19, 37),
               Motor(33, 31, 29, 36)]
